@@ -10,7 +10,7 @@ from langchain_community.document_loaders import PyPDFLoader
 
 # --- Setup App Configuration ---
 st.set_page_config(page_title="FBC Compliance Audit", layout="wide")
-st.title("🛡️ FBC Automated Compliance Audit Engine")
+st.title("FBC Automated Compliance Audit Local Agent (Qwen2.5:3b)")
 
 DB_DIRECTORY = "./local_db"
 
