@@ -10,3 +10,19 @@ compliance agent, fbc ai policy, fbc security principles, NIST 2.0 (800-53), SOC
 ollama run qwen2.5:3b
 
 
+3. paste the following into your terminal in visual studio code (llangchian, streamlit)
+
+pip install streamlit langchain langchain-chroma langchain-ollama langchain-community sentence-transformers
+
+4. after installing the necessary extensions, clone this git hub repo
+
+
+5. after cloning the repo run this on your terminal below:
+
+python3 build_vault.py
+
+python3 -m streamlit run app.py
+
+
+
+
