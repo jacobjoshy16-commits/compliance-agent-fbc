@@ -13,7 +13,7 @@ if not os.path.exists("./baseline_docs"):
 
 loader = PyPDFDirectoryLoader("./baseline_docs")
 documents = loader.load()
-print(f"📄 Loaded {len(documents)} pages of baseline policies.")
+print(f"Loaded {len(documents)} pages of baseline policies.")
 
 if len(documents) == 0:
     print("Error: No PDFs found in the 'baseline_docs' folder!")
@@ -25,7 +25,7 @@ chunks = text_splitter.split_documents(documents)
 print(f"✂️ Split into {len(chunks)} searchable compliance rules.")
 
 # 3. Convert to math and save permanently to the local_db
-print("⚙️ Building the database... (This might take a minute)")
+print("Building the database... (This might take a minute)")
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 vector_db = Chroma.from_documents(
@@ -34,4 +34,4 @@ vector_db = Chroma.from_documents(
     persist_directory="./local_db"
 )
 
-print("✅ SUCCESS! The FBC Vault (local_db) is now permanently hardcoded on your machine.")
+print("SUCCESS! The FBC Vault (local_db) is now permanently hardcoded on your machine.")

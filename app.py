@@ -38,10 +38,10 @@ def calculate_metrics(report_text):
 
 # --- Sidebar: The Scanner UI ---
 with st.sidebar:
-    st.header("🏛️ Hardcoded Baseline Vault")
-    st.success("🔒 NIST SP 800-53")
-    st.success("🔒 FBC IT Security Principles")
-    st.success("🔒 FBC AI Policy")
+    st.header("Hardcoded Baseline Database")
+    st.success("NIST SP 800-53")
+    st.success("FBC IT Security Principles")
+    st.success("FBC AI Policy")
     st.markdown("*(These core policies dictate all compliance audits)*")
     st.markdown("---")
     
@@ -132,19 +132,19 @@ if os.path.exists(DB_DIRECTORY):
                 st.markdown("---")
                 st.markdown("### 📊 Executive Audit Metrics")
                 col1, col2, col3 = st.columns(3)
-                col1.metric("🔴 High Risk Gaps", high_count)
-                col2.metric("🟡 Medium Risk Gaps", med_count)
-                col3.metric("🟢 Low Risk Gaps", low_count)
-                
+                col1.metric("High Risk Gaps", high_count)
+                col2.metric("Medium Risk Gaps", med_count)
+                col3.metric("Low Risk Gaps", low_count)
+
                 st.markdown("---")
-                st.markdown("### 📋 Official Gap Analysis")
+                st.markdown("### Policy Analysis")
                 st.success(report_text)
                 
                 # 6. Output Document Generator
-                st.markdown("### 💾 Export Documentation")
+                st.markdown("### Export Documentation")
                 doc_name = user_file.name if user_file is not None else "Text_Stream"
                 st.download_button(
-                    label="📥 Download Comprehensive Review (.txt)",
+                    label=" Download Comprehensive Review (.txt)",
                     data=report_text,
                     file_name=f"Audit_Report_{doc_name}.txt",
                     mime="text/plain"
