@@ -95,4 +95,4 @@ if db_exists:
         else:
             st.warning("Please enter a topic to search.")
 else:
-    st.info("👋 Welcome! To get started, use the sidebar on the left to upload your NIST standards and County Policy PDFs.")
+    st.info("Welcome! To get started, use the sidebar on the left to upload your NIST standards and County Policy PDFs.")
