@@ -1,98 +1,123 @@
 import os
+import tempfile
 import streamlit as st
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
+from langchain_community.document_loaders import PyPDFLoader
 
-# Import the processing engine we just created
-from document_processor import process_and_store_document
+# --- Setup App Configuration ---
+st.set_page_config(page_title="FBC Compliance Audit", layout="wide")
+st.title("🛡️ FBC Automated Compliance Audit Engine")
 
-# --- UI Configuration ---
-st.set_page_config(page_title="County Compliance Agent", layout="wide")
-st.title("🛡️ IT Security Compliance Agent")
-st.markdown("Automated gap analysis between NIST standards and County IT Policy.")
+DB_DIRECTORY = "./local_db"
 
-# --- Sidebar: The Upload Zone ---
+# --- Helper: Read Uploaded PDF temporarily ---
+def extract_text_from_upload(uploaded_file):
+    """Reads the uploaded PDF without permanently saving it to the database."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        temp_file.write(uploaded_file.getvalue())
+        temp_file_path = temp_file.name
+
+    loader = PyPDFLoader(temp_file_path)
+    pages = loader.load()
+    
+    # Combine the first few pages of text for the audit
+    extracted_text = "\n".join([page.page_content for page in pages])
+    os.remove(temp_file_path)
+    return extracted_text
+
+def calculate_metrics(report_text):
+    """Counts risk levels for the dashboard."""
+    high = report_text.upper().count("HIGH")
+    medium = report_text.upper().count("MEDIUM")
+    low = report_text.upper().count("LOW")
+    return high, medium, low
+
+# --- Sidebar: The Scanner UI ---
 with st.sidebar:
-    st.header("📂 Document Upload Zone")
-    st.write("Upload NIST standards or County Policies here to update the system knowledge.")
-    
-    # The Drag-and-Drop Uploader for non-technical users
-    uploaded_file = st.file_uploader("Drag and drop a PDF", type=["pdf"])
-    
-    if uploaded_file is not None:
-        if st.button("Process Document"):
-            with st.spinner("Ingesting document into secure local database..."):
-                success, message = process_and_store_document(uploaded_file)
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
-                    
+    st.header("🏛️ Hardcoded Baseline Vault")
+    st.success("🔒 NIST SP 800-53")
+    st.success("🔒 FBC IT Security Principles")
+    st.success("🔒 FBC AI Policy")
+    st.markdown("*(These core policies dictate all compliance audits)*")
     st.markdown("---")
-    st.header("System Status")
-    st.success("🟢 Engine: Qwen 2.5 (3B) - Local")
-    db_exists = os.path.exists("./local_db")
-    if db_exists:
-        st.success("✅ Secure Database Active")
-    else:
-        st.warning("⚠️ Database empty. Please upload a policy above.")
-
-# --- Database & Model Connection ---
-@st.cache_resource
-def load_agent():
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vector_db = Chroma(persist_directory="./local_db", embedding_function=embeddings)
     
-    # Using Qwen 2.5 on your i7 processor
+    st.header("📂 Audit Scanner")
+    st.write("Upload a draft document to audit it against the FBC Vault.")
+    user_file = st.file_uploader("Upload Policy Draft (PDF):", type=["pdf"])
+
+# --- Main Logic Execution ---
+if os.path.exists(DB_DIRECTORY):
+    # Connect database & model
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    db = Chroma(persist_directory=DB_DIRECTORY, embedding_function=embeddings)
     llm = ChatOllama(model="qwen2.5:3b", temperature=0.0)
     
-    # specific output format
+    # The Prompt: Instructs the AI to compare the UPLOADED text vs the VAULT text
     template = """
-    You are a cybersecurity compliance agent for a county government. 
-    Analyze the NIST framework against the county policy provided in the context below.
+    You are the Lead Cybersecurity Auditor for FBC. 
+    Compare the "Target Document" against the "FBC Vault Standards" provided below.
 
-    Context: {context}
-    Question: {question}
-
-    Format your response EXACTLY as a list containing ONLY these sections. Do not add introductory or concluding text:
+    FBC Vault Standards (Context): 
+    {context}
     
-    - **Control ID:** [The specific NIST Control ID]
-    - **What it requires:** [Brief summary of the NIST requirement]
-    - **What our policy doesn't cover:** [The exact gap or missing information in the county policy]
-    - **Risk Priority:** [Rate as High, Medium, or Low]
-    - **So What?:** [Explain the real-world operational danger of this gap]
+    Target Document to Audit: 
+    {question}
+
+    Format your response EXACTLY as a structured list containing ONLY these sections.
+    
+    - **Control ID:** [Relevant NIST or FBC Control ID]
+    - **Vault Requirement:** [What the FBC/NIST baseline requires]
+    - **Draft Document Gap:** [What the uploaded document is missing or violating]
+    - **Risk Priority:** [State either HIGH, MEDIUM, or LOW]
+    - **Operational & Legal Impact:** [Explain the exact vulnerability, potential legal consequences, fines, or operational downtime FBC might face.]
     """
     
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-    
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=vector_db.as_retriever(search_kwargs={"k": 3}),
-        chain_type_kwargs={"prompt": prompt}
-    )
-    return qa_chain
-
-# --- Main Interface: Gap Analysis ---
-if db_exists:
-    agent_chain = load_agent()
-    
-    st.write("### Run Gap Analysis")
-    query = st.text_input(
-        "Enter a control topic to analyze:", 
-        placeholder="e.g., Does our policy meet NIST standards for data backups?"
+    compliance_engine = RetrievalQA.from_chain_type(
+        llm=llm, retriever=db.as_retriever(search_kwargs={"k": 5}), chain_type_kwargs={"prompt": prompt}
     )
     
-    if st.button("Generate Compliance Report", type="primary"):
-        if query:
-            with st.spinner("Analyzing county policy against NIST framework..."):
-                response = agent_chain.invoke({"query": query})
+    if user_file is not None:
+        st.write(f"### Target Acquired: `{user_file.name}`")
+        if st.button("Generate Comprehensive Audit", type="primary"):
+            with st.spinner("Scanning document against FBC Vault..."):
                 
-                st.markdown("### Analysis Results")
-                st.info(response["result"])
-        else:
-            st.warning("Please enter a topic to search.")
+                # 1. Extract text from the uploaded PDF
+                target_text = extract_text_from_upload(user_file)
+                
+                # 2. To keep the model fast on 32GB RAM, we limit the scan size
+                target_summary = target_text[:4000] # Audit the first ~4000 characters
+                
+                # 3. Run the LLM
+                response = compliance_engine.invoke({"query": target_summary})
+                report_text = response["result"]
+                
+                # 4. Display Dashboard
+                high_count, med_count, low_count = calculate_metrics(report_text)
+                
+                st.markdown("---")
+                st.markdown("### 📊 Executive Audit Metrics")
+                col1, col2, col3 = st.columns(3)
+                col1.metric("🔴 High Risk Gaps", high_count)
+                col2.metric("🟡 Medium Risk Gaps", med_count)
+                col3.metric("🟢 Low Risk Gaps", low_count)
+                
+                st.markdown("---")
+                st.markdown("### 📋 Official Gap Analysis")
+                st.info(report_text)
+                
+                # 5. Output Document Generator
+                st.download_button(
+                    label="📥 Download Comprehensive Review (.txt)",
+                    data=report_text,
+                    file_name=f"Audit_Report_{user_file.name}.txt",
+                    mime="text/plain"
+                )
+    else:
+        st.info("👈 Please upload a target document in the sidebar to begin the audit.")
 else:
-    st.info("Welcome! To get started, use the sidebar on the left to upload your NIST standards and County Policy PDFs.")
+    st.error("⚠️ FBC Vault Database not found. Please ensure your `local_db` is initialized.")
