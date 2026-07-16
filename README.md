@@ -20,6 +20,7 @@ pip install streamlit langchain langchain-chroma langchain-ollama langchain-comm
 5. after cloning the repo run this on your terminal below:
 
 python3 build_vault.py
+
 python3 -m streamlit run app.py
 
 
