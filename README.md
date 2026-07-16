@@ -14,6 +14,14 @@ ollama run qwen2.5:3b
 
 pip install streamlit langchain langchain-chroma langchain-ollama langchain-community sentence-transformers
 
+4. after installing the necessary extensions, clone this git hub repo
+
+
+5. after cloning the repo run this on your terminal below:
+
+python3 build_vault.py
+python3 -m streamlit run app.py
+
 
 
 
