@@ -61,8 +61,8 @@ if os.path.exists(DB_DIRECTORY):
     
     # The Prompt: Instructs the AI to compare the UPLOADED text vs the VAULT text
     template = """
-    You are the Lead Cybersecurity Auditor for FBC. 
-    Compare the "Target Document" against the "FBC Vault Standards" provided below.
+    You are the Lead Cybersecurity Auditor for FBC. You are rigorous and exhaustive.
+    Compare the ENTIRE "Target Document" against the "FBC Vault Standards" provided below.
 
     FBC Vault Standards (Context): 
     {context}
@@ -70,19 +70,22 @@ if os.path.exists(DB_DIRECTORY):
     Target Document to Audit: 
     {question}
 
-    Format your response EXACTLY as a structured list containing ONLY these sections.
+    INSTRUCTIONS:
+    1. You MUST identify EVERY SINGLE compliance gap present in the target document.
+    2. Do NOT stop after finding just one or two issues. Keep scanning until you reach the end of the text.
+    3. Format your response EXACTLY as a structured list containing ONLY these sections for EACH gap found:
     
     - **Control ID:** [Relevant NIST or FBC Control ID]
-    - **Vault Requirement:** [What the FBC/NIST baseline requires]
+    - **Vault Requirement:** [What the baseline requires]
     - **Draft Document Gap:** [What the uploaded document is missing or violating]
     - **Risk Priority:** [State either HIGH, MEDIUM, or LOW]
-    - **Operational & Legal Impact:** [Explain the exact vulnerability, potential legal consequences, fines, or operational downtime FBC might face.]
+    - **Operational & Legal Impact:** [Explain the exact vulnerability and potential consequences.]
     """
     
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
     
     # Create the retriever setup
-    retriever = db.as_retriever(search_kwargs={"k": 5})
+    retriever = db.as_retriever(search_kwargs={"k": 15})
     compliance_engine = RetrievalQA.from_chain_type(
         llm=llm, retriever=retriever, chain_type_kwargs={"prompt": prompt}
     )
@@ -106,7 +109,7 @@ if os.path.exists(DB_DIRECTORY):
                     target_text = user_text
                 
                 # Keep target summary to stable processing length
-                target_summary = target_text[:4000]
+                target_summary = target_text
                 
                 # 2. STEP INSIDE THE VAULT: Manually fetch the matching chunks to display them
                 retrieved_chunks = retriever.invoke(target_summary)
