@@ -1,0 +1,27 @@
+{
+  "model": "qwen2.5:3b",
+  "n": 2,
+  "accuracy": 0.5,
+  "parse_failures": 0,
+  "hallucinations": 0,
+  "rows": [
+    {
+      "pair_id": "PRC-LOG-005 x AU-11",
+      "expected": "NOT_MET",
+      "got": "NOT_MET",
+      "evidence": "NONE",
+      "verify": "absent",
+      "parse": "ok",
+      "secs": 12.4
+    },
+    {
+      "pair_id": "PRC-BCK-007 x CP-9",
+      "expected": "PARTIAL",
+      "got": "NOT_MET",
+      "evidence": "NONE",
+      "verify": "absent",
+      "parse": "ok",
+      "secs": 4.2
+    }
+  ]
+}

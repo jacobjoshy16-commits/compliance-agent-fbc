@@ -1,6 +1,0 @@
-local_db/
-baseline_docs/
-__pycache__/
-*.pyc
-.venv/
-

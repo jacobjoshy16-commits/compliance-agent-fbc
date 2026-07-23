@@ -24,5 +24,13 @@ python3 build_vault.py
 python3 -m streamlit run app.py
 
 
+**Labeling Guidelines:**
+* MET = The procedure explicitly addresses the core requirement of the control.
+* PARTIAL = The procedure performs the core activity but omits a required element, or only applies to a subset of systems.
+* NOT_MET = The activity is completely absent, or the text explicitly contradicts the requirement.
+* NOT_APPLICABLE = The text describes a procedure completely unrelated to the control's domain (e.g., door locks vs. patching).
+
+
+
 
 

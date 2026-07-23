@@ -1,0 +1,50 @@
+[
+  {
+    "pair_id": "PRC-LOG-005 x AU-11",
+    "seg_text": "Windows domain controllers, the firewall pair, and core switches forward syslog to the on-premises Graylog instance. The Graylog retention policy is set to 14 days due to the size of the allocated datastore. Logs are not archived to secondary storage before rotation. The Sheriff's Office RMS and the Health & Human Services case management application do not forward logs to Graylog; their audit logs remain local to the application servers. Alert rules exist for failed logon thresholds and for firewall interface state changes. There is no documented procedure assigning a named reviewer, and log review is performed when an incident prompts it rather than on a defined schedule.",
+    "control": {
+      "control_id": "AU-11",
+      "control_title": "AUDIT RECORD RETENTION",
+      "family": "AU",
+      "doc_name": "NIST SP 800-53r5",
+      "text": "AU-11 AUDIT RECORD RETENTION\nControl: Retain audit records for [Assignment: organization-defined time period] to provide support for after-the-fact investigations of security incidents and to meet regulatory and organizational information retention requirements."
+    },
+    "expected": "NOT_MET"
+  },
+  {
+    "pair_id": "PRC-BCK-007 x CP-9",
+    "seg_text": "Veeam performs nightly incremental backups of all virtual machines to the on-premises Data Domain appliance, with weekly synthetic fulls. A copy job replicates to the secondary site at the Fairgrounds annex over the county fiber ring. Both copies reside on the county production network and both are reachable using the same Veeam service account credentials; there is no immutable, offline, or logically air-gapped copy. Restoration testing is specified as quarterly. The most recent documented restoration test was 2022-11 and covered a single file-level restore. No full system or application-level recovery has been tested. Recovery time and recovery point objectives are not formally defined for any county system.",
+    "control": {
+      "control_id": "CP-9",
+      "control_title": "SYSTEM BACKUP",
+      "family": "CP",
+      "doc_name": "NIST SP 800-53r5",
+      "text": "CP-9 SYSTEM BACKUP\nControl: Conduct backups of user-level information, system-level information, and system documentation including security-related documentation within [Assignment: organization-defined frequency] consistent with recovery time and recovery point objectives."
+    },
+    "expected": "PARTIAL"
+  },
+  {
+    "pair_id": "PRC-PAT-003 x SI-2",
+    "seg_text": "Windows servers receive monthly cumulative updates via WSUS on the second weekend after Patch Tuesday. Workstations update automatically. Network devices (switches, firewalls) are updated when a vendor advisory is brought to the team's attention; there is no defined schedule or tracking for network device firmware.",
+    "control": {
+      "control_id": "SI-2",
+      "control_title": "FLAW REMEDIATION",
+      "family": "SI",
+      "doc_name": "NIST SP 800-53r5",
+      "text": "SI-2 FLAW REMEDIATION\nControl: Identify, report, and correct system flaws; install security-relevant software and firmware updates within [Assignment: organization-defined time period] of the release of the updates."
+    },
+    "expected": "PARTIAL"
+  },
+  {
+    "pair_id": "PRC-PAT-003 x PE-3",
+    "seg_text": "Windows servers receive monthly cumulative updates via WSUS on the second weekend after Patch Tuesday. Workstations update automatically. Network devices (switches, firewalls) are updated when a vendor advisory is brought to the team's attention; there is no defined schedule or tracking for network device firmware.",
+    "control": {
+      "control_id": "PE-3",
+      "control_title": "PHYSICAL ACCESS CONTROL",
+      "family": "PE",
+      "doc_name": "NIST SP 800-53r5",
+      "text": "PE-3 PHYSICAL ACCESS CONTROL\nControl: Enforce physical access authorizations at [Assignment: organization-defined entry and exit points to the facility where the system resides] by: 1. Verifying individual access authorizations before granting access to the facility; and 2. Controlling ingress and egress to the facility using [Assignment: organization-defined physical access control systems or devices, guards, or other physical control measures]."
+    },
+    "expected": "NOT_APPLICABLE"
+  }
+]
