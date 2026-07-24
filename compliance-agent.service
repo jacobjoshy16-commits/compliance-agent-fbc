@@ -1,0 +1,21 @@
+[Unit]
+Description=FBC Compliance Audit Agent (Streamlit UI)
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=dlp
+WorkingDirectory=/opt/dlp/compliance-agent-fbc
+Environment=TOKENIZERS_PARALLELISM=false
+EnvironmentFile=-/etc/dlp/dlp.env
+ExecStart=/opt/dlp/venv/bin/python -m streamlit run app.py \
+  --server.address 127.0.0.1 \
+  --server.port 8501 \
+  --server.headless true \
+  --browser.gatherUsageStats false
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
